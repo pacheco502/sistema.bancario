@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empréstimos - Banco</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar (Menu lateral) -->
+    <nav class="sidebar bg-primary text-white" style="height: 100vh; width: 250px; position: fixed;">
+        <div class="brand-section p-3">
+            <h4>Pacheco Pay</h4>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link text-white" href="dashbord.html">
+                    <i class="bi bi-house-door me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="contas.html">
+                    <i class="bi bi-wallet2 me-2"></i> Contas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="transacoes.html">
+                    <i class="bi bi-arrow-repeat me-2"></i> Transações
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="cartoes.html">
+                    <i class="bi bi-credit-card me-2"></i> Cartões
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white active" href="emprestimos.html">
+                    <i class="bi bi-credit-card me-2"></i> Empréstimos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="../index.html">
+                    <i class="bi bi-door-open me-2"></i> Sair
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main content (Empréstimos) -->
+    <div class="main-content" style="margin-left: 250px; padding: 20px;">
+        <div class="container mt-5">
+            <h2>Meus Empréstimos</h2>
+
+            <!-- Exemplo de Cartões -->
+            <div class="row">
+                <!-- Empréstimo Pessoal -->
+                <div class="col-lg-6 col-md-6 mb-3">
+                    <div class="card text-white bg-info">
+                        <div class="card-header">Empréstimo Pessoal</div>
+                        <div class="card-body">
+                            <p><strong>Valor:</strong> R$ 5.000,00</p>
+                            <p><strong>Taxa de Juros:</strong> 1.5% ao mês</p>
+                            <p><strong>Parcelas:</strong> 12x de R$ 500,00</p>
+                            <!-- Botão para abrir o modal -->
+                            <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#emprestimoPessoalModal">Ver Detalhes</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empréstimo Imobiliário -->
+                <div class="col-lg-6 col-md-6 mb-3">
+                    <div class="card text-white bg-warning">
+                        <div class="card-header">Empréstimo Imobiliário</div>
+                        <div class="card-body">
+                            <p><strong>Valor:</strong> R$ 200.000,00</p>
+                            <p><strong>Taxa de Juros:</strong> 0.8% ao mês</p>
+                            <p><strong>Parcelas:</strong> 240x de R$ 1.700,00</p>
+                            <!-- Botão para abrir o modal -->
+                            <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#emprestimoImobiliarioModal">Ver Detalhes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal para Empréstimo Pessoal -->
+            <div class="modal fade" id="emprestimoPessoalModal" tabindex="-1" aria-labelledby="emprestimoPessoalModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="emprestimoPessoalModalLabel">Detalhes do Empréstimo Pessoal</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Valor:</strong> R$ 5.000,00</p>
+                            <p><strong>Taxa de Juros:</strong> 1.5% ao mês</p>
+                            <p><strong>Parcelas:</strong> 12x de R$ 500,00</p>
+                            <p><strong>Data de Abertura:</strong> 10/01/2024</p>
+                            <p><strong>Vencimento da Primeira Parcela:</strong> 10/02/2024</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal para Empréstimo Imobiliário -->
+            <div class="modal fade" id="emprestimoImobiliarioModal" tabindex="-1" aria-labelledby="emprestimoImobiliarioModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="emprestimoImobiliarioModalLabel">Detalhes do Empréstimo Imobiliário</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Valor:</strong> R$ 200.000,00</p>
+                            <p><strong>Taxa de Juros:</strong> 0.8% ao mês</p>
+                            <p><strong>Parcelas:</strong> 240x de R$ 1.700,00</p>
+                            <p><strong>Data de Abertura:</strong> 05/01/2024</p>
+                            <p><strong>Vencimento da Primeira Parcela:</strong> 05/02/2024</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela de Empréstimos Cadastrados -->
+            <div class="row mt-5">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header">Empréstimos Cadastrados</div>
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Valor</th>
+                                        <th>Taxa de Juros</th>
+                                        <th>Parcelas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Exemplo de Empréstimos -->
+                                    <tr>
+                                        <td>Empréstimo Pessoal</td>
+                                        <td>R$ 5.000,00</td>
+                                        <td>1.5% ao mês</td>
+                                        <td>12x de R$ 500,00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Empréstimo Imobiliário</td>
+                                        <td>R$ 200.000,00</td>
+                                        <td>0.8% ao mês</td>
+                                        <td>240x de R$ 1.700,00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Empréstimo Automotivo</td>
+                                        <td>R$ 30.000,00</td>
+                                        <td>1.2% ao mês</td>
+                                        <td>36x de R$ 1.000,00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

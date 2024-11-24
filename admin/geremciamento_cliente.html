@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gerenciamento de Clientes</title>
+        <!-- Bootstrap CSS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Link para o CSS do Bootstrap -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-rbs0Jp8xDJb9+1kIk48VzzkpswTazZp9paFYrw2Tw/xSknf9EzmT/pDQsQICq6uF"
+            crossorigin="anonymous"
+        >
+        <!-- JQuery Mask -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+        <style>
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            width: 250px;
+            background: linear-gradient(180deg, #1a237e 0%, #3949ab 100%);
+            color: white;
+            z-index: 1000;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 20px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: #00bcd4;
+        }
+        
+        .sidebar .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: #00bcd4;
+        }
+        
+        .brand-section {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+            .sidebar.active {
+                margin-left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .main-content.active {
+                margin-left: 250px;
+            }
+        }
+        
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            display: none;
+            transition: left 0.3s ease-in-out;
+        }
+        
+        @media (max-width: 768px) {
+            .toggle-btn {
+                display: block;
+            }
+            .toggle-btn.active {
+                left: 270px;
+            }
+        }
+        
+        .table-actions {
+            white-space: nowrap;
+        }
+        
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+        }
+        
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+        }
+        
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+        }
+        </style>
+    </head>
+    <body>
+        <!-- Loading Spinner -->
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+        </div>
+        <div class="loading-overlay"></div>
+        <!-- Toast Notifications -->
+        <div class="toast-container"></div>
+        <!-- Toggle Button -->
+        <button class="btn btn-primary toggle-btn" onclick="toggleSidebar()">
+            ☰
+        </button>
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="brand-section">
+                <h4 class="mb-0"> Sistema Bancário</h4>
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="gerenciamento_clientes.html">
+                        <i class="fas fa-users me-2"></i>
+                        💼 Clientes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="gerenciamento_contas.html">
+                        <i class="fas fa-landmark me-2"></i>
+                        💰 Contas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="gerenciamento_transacoes.html">
+                        <i class="fas fa-exchange-alt me-2"></i>
+                        🔄 Transações
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="gerenciamento_cartoes.html">
+                        <i class="fas fa-credit-card me-2"></i>
+                        💳 Cartões
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="gerenciamento_emprestimos.html">
+                        <i class="fas fa-hand-holding-usd me-2"></i>
+                        📊 Empréstimos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="../index.html">
+                        <i class="fas fa-sign-out-alt me-2"></i>
+                        Sair
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Gerenciamento de Clientes</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClientModal">
+                    Adicionar Cliente
+                </button>
+            </div>
+            <!-- Search and Filter Section -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="searchInput"
+                                placeholder="Buscar por nome, CPF ou email"
+                            >
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="filterStatus">
+                                <option value="">Status - Todos</option>
+                                <option value="active">Ativos</option>
+                                <option value="inactive">Inativos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-secondary w-100" onclick="applyFilters()">
+                                <i class="fas fa-search me-2"></i>
+                                Filtrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Número de Conta</th>
+                            <th>CPF</th>
+                            <th>Nome Completo</th>
+                            <th>Email</th>
+                            <th>Telefone</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientTableBody">
+                        <tr>
+                            <td>6</td>
+                            <td>210987</td>
+                            <td>666.666.666-66</td>
+                            <td>Clara Souza</td>
+                            <td>clara.souza@example.com</td>
+                            <td>(66) 6666-6666</td>
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-warning"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editClientModal"
+                                    onclick="populateEditModal(6, '210987', '666.666.666-66', 'Clara Souza', 'clara.souza@example.com', '(66) 6666-6666')"
+                                >
+                                    Editar
+                                </button>
+                                <button
+                                    class="btn btn-sm btn-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteClientModal"
+                                    onclick="populateEditModal(6, '210987', '666.666.666-66', 'Clara Souza', 'clara.souza@example.com', '(66) 6666-6666')"
+                                >
+                                    Excluir
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>321098</td>
+                            <td>777.777.777-77</td>
+                            <td>Roberto Nunes</td>
+                            <td>roberto.nunes@example.com</td>
+                            <td>(77) 7777-7777</td>
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-warning"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editClientModal"
+                                    onclick="populateEditModal(7, '321098', '777.777.777-77', 'Roberto Nunes', 'roberto.nunes@example.com', '(77) 7777-7777')"
+                                >
+                                    Editar
+                                </button>
+                                <button
+                                    class="btn btn-sm btn-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteClientModal"
+                                    onclick="populateEditModal(7, '321098', '777.777.777-77', 'Roberto Nunes', 'roberto.nunes@example.com', '(77) 7777-7777')"
+                                >
+                                    Excluir
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>432109</td>
+                            <td>888.888.888-88</td>
+                            <td>Luana Oliveira</td>
+                            <td>luana.oliveira@example.com</td>
+                            <td>(88) 8888-8888</td>
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-warning"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editClientModal"
+                                    onclick="populateEditModal(8, '432109', '888.888.888-88', 'Luana Oliveira', 'luana.oliveira@example.com', '(88) 8888-8888')"
+                                >
+                                    Editar
+                                </button>
+                                <button
+                                    class="btn btn-sm btn-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteClientModal"
+                                    onclick="populateEditModal(7, '321098', '777.777.777-77', 'Roberto Nunes', 'roberto.nunes@example.com', '(77) 7777-7777')"
+                                >
+                                    Excluir
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>543210</td>
+                            <td>999.999.999-99</td>
+                            <td>Marcelo Santos</td>
+                            <td>marcelo.santos@example.com</td>
+                            <td>(99) 9999-9999</td>
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-warning"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editClientModal"
+                                    onclick="populateEditModal(9, '543210', '999.999.999-99', 'Marcelo Santos', 'marcelo.santos@example.com', '(99) 9999-9999')"
+                                >
+                                    Editar
+                                </button>
+                                <button
+                                    class="btn btn-sm btn-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteClientModal"
+                                    onclick="populateEditModal(7, '321098', '777.777.777-77', 'Roberto Nunes', 'roberto.nunes@example.com', '(77) 7777-7777')"
+                                >
+                                    Excluir
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>654321</td>
+                            <td>000.000.000-00</td>
+                            <td>Patrícia Costa</td>
+                            <td>patricia.costa@example.com</td>
+                            <td>(00) 0000-0000</td>
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-warning"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editClientModal"
+                                    onclick="populateEditModal(10, '654321', '000.000.000-00', 'Patrícia Costa', 'patricia.costa@example.com', '(00) 0000-0000')"
+                                >
+                                    Editar
+                                </button>
+                                <button
+                                    class="btn btn-sm btn-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteClientModal"
+                                    onclick="populateEditModal(7, '321098', '777.777.777-77', 'Roberto Nunes', 'roberto.nunes@example.com', '(77) 7777-7777')"
+                                >
+                                    Excluir
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-muted">
+                Mostrando
+                <span id="startRange">1</span>
+                -
+                <span id="endRange">10</span>
+                de
+                <span id="totalItems">0</span>
+                clientes
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0">
+                    <li class="page-item disabled">
+                        <button class="page-link" onclick="previousPage()">Anterior</button>
+                    </li>
+                    <li class="page-item active">
+                        <span class="page-link">1</span>
+                    </li>
+                    <li class="page-item">
+                        <button class="page-link" onclick="nextPage()">Próximo</button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+</div>
+<!-- Modal Adicionar Cliente -->
+<div
+    class="modal fade"
+    id="addClientModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adicionar Cliente</h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <form id="addClientForm" novalidate>
+                    <div class="mb-3">
+                        <label for="addClientCPF" class="form-label">CPF</label>
+                        <input
+                            type="text"
+                            class="form-control cpf-mask"
+                            id="addClientCPF"
+                            required
+                        >
+                        <div class="invalid-feedback">CPF inválido</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="addClientName" class="form-label">Nome Completo</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="addClientName"
+                            required
+                            minlength="3"
+                        >
+                        <div class="invalid-feedback">Nome deve ter pelo menos 3 caracteres</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="addClientEmail" class="form-label">Email</label>
+                        <input
+                            type="email"
+                            class="form-control"
+                            id="addClientEmail"
+                            required
+                        >
+                        <div class="invalid-feedback">Email inválido</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="addClientPhone" class="form-label">Telefone</label>
+                        <input
+                            type="text"
+                            class="form-control phone-mask"
+                            id="addClientPhone"
+                            required
+                        >
+                        <div class="invalid-feedback">Telefone inválido</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="addClientStatus" class="form-label">Status</label>
+                        <select class="form-select" id="addClientStatus" required>
+                            <option value="active">Ativo</option>
+                            <option value="inactive">Inativo</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="submitAddClientForm()">Adicionar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Editar Cliente -->
+<div
+    class="modal fade"
+    id="editClientModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Cliente</h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <form id="editClientForm" novalidate>
+                    <input type="hidden" id="editClientId">
+                    <div class="mb-3">
+                        <label for="editClientCPF" class="form-label">CPF</label>
+                        <input
+                            type="text"
+                            class="form-control cpf-mask"
+                            id="editClientCPF"
+                            required
+                        >
+                        <div class="invalid-feedback">CPF inválido</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editClientName" class="form-label">Nome Completo</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="editClientName"
+                            required
+                            minlength="3"
+                        >
+                        <div class="invalid-feedback">Nome deve ter pelo menos 3 caracteres</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editClientEmail" class="form-label">Email</label>
+                        <input
+                            type="email"
+                            class="form-control"
+                            id="editClientEmail"
+                            required
+                        >
+                        <div class="invalid-feedback">Email inválido</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editClientPhone" class="form-label">Telefone</label>
+                        <input
+                            type="text"
+                            class="form-control phone-mask"
+                            id="editClientPhone"
+                            required
+                        >
+                        <div class="invalid-feedback">Telefone inválido</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editClientStatus" class="form-label">Status</label>
+                        <select class="form-select" id="editClientStatus" required>
+                            <option value="active">Ativo</option>
+                            <option value="inactive">Inativo</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditClientForm()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Confirmar Exclusão -->
+<div
+    class="modal fade"
+    id="deleteClientModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Exclusão</h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Tem certeza que deseja excluir o cliente
+                    <strong id="deleteClientName"></strong>
+                    ?
+                </p>
+                <p class="text-danger mb-0">Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" onclick="deleteClient()">Excluir</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Bootstrap Bundle JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

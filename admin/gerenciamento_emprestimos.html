@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Empréstimos</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            width: 250px;
+            background: linear-gradient(180deg, #1a237e 0%, #3949ab 100%);
+            color: white;
+            z-index: 1000;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 20px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: #00bcd4;
+        }
+
+        .sidebar .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: #00bcd4;
+        }
+
+        .brand-section {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+            .sidebar.active {
+                margin-left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .main-content.active {
+                margin-left: 250px;
+            }
+        }
+
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            display: none;
+            transition: left 0.3s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .toggle-btn {
+                display: block;
+            }
+            .toggle-btn.active {
+                left: 270px;
+            }
+        }
+
+        .table-actions {
+            white-space: nowrap;
+        }
+
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+    </div>
+    <div class="loading-overlay"></div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container"></div>
+
+    <!-- Toggle Button -->
+    <button class="btn btn-primary toggle-btn" onclick="toggleSidebar()">
+        ☰
+    </button>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="brand-section">
+            <h4 class="mb-0">Sistema Bancário</h4>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="geremciamento_cliente.html">
+                    <i class="fas fa-users me-2"></i>💼 Clientes
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="gerenciamento_contas.html">
+                    <i class="fas fa-landmark me-2"></i>💰 Contas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="gerenciamento_transacoes.html">
+                    <i class="fas fa-exchange-alt me-2"></i>🔄 Transações
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="gerenciamento_cartoes.html">
+                    <i class="fas fa-credit-card me-2"></i>💳 Cartões
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="gerenciamento_emprestimos.html">
+                    <i class="fas fa-hand-holding-usd me-2"></i>📊 Empréstimos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="../index.html">
+                    <i class="fas fa-sign-out-alt me-2"></i>
+                    Sair
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Gerenciamento de Empréstimos</h2>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addLoanModal">
+                Adicionar Empréstimo
+            </button>
+        </div>
+
+        <!-- Empréstimos Table -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tipo de Empréstimo</th>
+                                <th>Valor</th>
+                                <th>Taxa de Juros (%)</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loanTableBody">
+                            <!-- Exemplo de Dados de Empréstimos -->
+                            <tr>
+                                <td>1</td>
+                                <td>Pessoal</td>
+                                <td>R$ 10.000,00</td>
+                                <td>5%</td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editLoanModal">Editar</button>
+                                    <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteLoanModal" 
+                                        onclick="document.getElementById('deleteLoanId').value = 1; document.getElementById('deleteLoanInfo').textContent = 'Empréstimo Pessoal'">
+                                        Excluir
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- Adicione mais empréstimos aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Adicionar Empréstimo -->
+    <div class="modal fade" id="addLoanModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Adicionar Empréstimo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addLoanForm" method="POST" action="/add-loan">
+                        <div class="mb-3">
+                            <label for="loanType" class="form-label">Tipo de Empréstimo</label>
+                            <select class="form-select" id="loanType" name="loanType" required>
+                                <option value="pessoal">Pessoal</option>
+                                <option value="imobiliario">Imobiliário</option>
+                                <option value="automovel">Automóvel</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loanAmount" class="form-label">Valor</label>
+                            <input type="number" class="form-control" id="loanAmount" name="loanAmount" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="interestRate" class="form-label">Taxa de Juros (%)</label>
+                            <input type="number" class="form-control" id="interestRate" name="interestRate" required>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Adicionar Empréstimo</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Empréstimo -->
+    <div class="modal fade" id="editLoanModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Empréstimo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editLoanForm" method="POST" action="/edit-loan">
+                        <div class="mb-3">
+                            <label for="editLoanType" class="form-label">Tipo de Empréstimo</label>
+                            <select class="form-select" id="editLoanType" name="loanType" required>
+                                <option value="pessoal">Pessoal</option>
+                                <option value="imobiliario">Imobiliário</option>
+                                <option value="automovel">Automóvel</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editLoanAmount" class="form-label">Valor</label>
+                            <input type="number" class="form-control" id="editLoanAmount" name="loanAmount" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editInterestRate" class="form-label">Taxa de Juros (%)</label>
+                            <input type="number" class="form-control" id="editInterestRate" name="interestRate" required>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmar Exclusão -->
+    <div class="modal fade" id="deleteLoanModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Exclusão</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja excluir o empréstimo <strong id="deleteLoanInfo"></strong>?</p>
+                    <p class="text-danger mb-0">Esta ação não pode ser desfeita.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteLoan()">Excluir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

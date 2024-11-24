@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Login</title>
+    <!-- Link do Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="imagem/banco.png" class="icon">
+</head>
+<body class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="card shadow-sm p-4" style="max-width: 400px; width: 100%; border-radius: 1rem;">
+        <div class="text-center mb-4">
+            <!-- Exemplo de logo de banco em SVG -->
+            <h1 class="h5 text-primary">Pacheco Pay</h1>
+        </div>
+
+        <ul class="nav nav-pills nav-justified mb-4" id="tab-menu" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="cliente-tab" data-bs-toggle="pill" data-bs-target="#cliente-form" type="button" role="tab" aria-controls="cliente-form" aria-selected="true">Cliente</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="admin-tab" data-bs-toggle="pill" data-bs-target="#admin-form" type="button" role="tab" aria-controls="admin-form" aria-selected="false">Administrador</button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Formulário Cliente -->
+            <div class="tab-pane fade show active" id="cliente-form" role="tabpanel" aria-labelledby="cliente-tab">
+                <form id="form-cliente" onsubmit="return entrarComoCliente()">
+                    <div class="mb-3">
+                        <label for="email-cliente" class="form-label">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="8" r="4"></circle>
+                                    <path d="M20 21a8 8 0 0 0-16 0"></path>
+                                </svg>
+                            </span>
+                            <input type="email" id="email-cliente" class="form-control" placeholder="seu@email.com">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="senha-cliente" class="form-label">Senha</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                            </span>
+                            <input type="password" id="senha-cliente" class="form-control" placeholder="********">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Entrar como Cliente</button>
+                </form>
+            </div>
+
+            <!-- Formulário Administrador -->
+            <div class="tab-pane fade" id="admin-form" role="tabpanel" aria-labelledby="admin-tab">
+                <form id="form-admin" onsubmit="return entrarComoAdmin()">
+                    <div class="mb-3">
+                        <label for="email-admin" class="form-label">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="8" r="4"></circle>
+                                    <path d="M20 21a8 8 0 0 0-16 0"></path>
+                                </svg>
+                            </span>
+                            <input type="email" id="email-admin" class="form-control" placeholder="seu@email.com">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="senha-admin" class="form-label">Senha</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                            </span>
+                            <input type="password" id="senha-admin" class="form-control" placeholder="********">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Entrar como Administrador</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts do Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function entrarComoCliente() {
+            window.location.href = "cliente/dashbord.html";
+            return false; // Impede o envio do formulário
+        }
+
+        function entrarComoAdmin() {
+            window.location.href = "admin/geremciamento_cliente.html";
+            return false; // Impede o envio do formulário
+        }
+    </script>
+</body>
+</html>

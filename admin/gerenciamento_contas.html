@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gerenciamento de Contas</title>
+        <!-- Bootstrap CSS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            width: 250px;
+            background: linear-gradient(180deg, #1a237e 0%, #3949ab 100%);
+            color: white;
+            z-index: 1000;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 20px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: #00bcd4;
+        }
+
+        .sidebar .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: #00bcd4;
+        }
+
+        .brand-section {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+            .sidebar.active {
+                margin-left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .main-content.active {
+                margin-left: 250px;
+            }
+        }
+
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            display: none;
+            transition: left 0.3s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .toggle-btn {
+                display: block;
+            }
+            .toggle-btn.active {
+                left: 270px;
+            }
+        }
+
+        .table-actions {
+            white-space: nowrap;
+        }
+
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+        }
+        </style>
+    </head>
+    <body>
+        <!-- Loading Spinner -->
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+        </div>
+        <div class="loading-overlay"></div>
+        <!-- Toast Notifications -->
+        <div class="toast-container"></div>
+        <!-- Toggle Button -->
+        <button class="btn btn-primary toggle-btn" onclick="toggleSidebar()">
+            ☰
+        </button>
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="brand-section">
+                <h4 class="mb-0">Sistema Bancário</h4>
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="geremciamento_cliente.html">
+                        <i class="fas fa-users me-2"></i>
+                        💼 Clientes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="gerenciamento_contas.html">
+                        <i class="fas fa-landmark me-2"></i>
+                        💰 Contas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="gerenciamento_transacoes.html">
+                        <i class="fas fa-exchange-alt me-2"></i>
+                        🔄 Transações
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="gerenciamento_cartoes.html">
+                        <i class="fas fa-credit-card me-2"></i>
+                        💳 Cartões
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="gerenciamento_emprestimos.html">
+                        <i class="fas fa-hand-holding-usd me-2"></i>
+                        📊 Empréstimos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="../index.html">
+                        <i class="fas fa-sign-out-alt me-2"></i>
+                        Sair
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Gerenciamento de Contas</h2>
+            </div>
+            <!-- Search and Filter Section -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="searchInput"
+                                placeholder="Buscar por número de conta, CPF ou nome"
+                            >
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="filterStatus">
+                                <option value="">Status - Todos</option>
+                                <option value="active">Ativos</option>
+                                <option value="inactive">Inativos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-secondary w-100" onclick="applyFilters()">
+                                <i class="fas fa-search me-2"></i>
+                                Filtrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Contas Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tipo de Conta</th>
+                                    <th>Saldo</th>
+                                    <th>Data de Abertura</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accountTableBody">
+                                <!-- Exemplo de Dados das Contas -->
+                                <tr>
+                                    <td>6</td>
+                                    <td>Corrente</td>
+                                    <td>R$ 1.500,00</td>
+                                    <td>23/11/2019</td>
+                                    <td>
+                                        <button
+                                            class="btn btn-sm btn-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteAccountModal"
+                                            onclick="document.getElementById('deleteAccountId').value = 1; document.getElementById('deleteAccountInfo').textContent = 'Corrente - R$ 1.500,00'"
+                                        >
+                                            Bloquear
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>7</td>
+                                    <td>Poupança</td>
+                                    <td>R$ 75.500,00</td>
+                                    <td>23/11/2019</td>
+                                    <td>
+                                        <button
+                                            class="btn btn-sm btn-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteAccountModal"
+                                            onclick="document.getElementById('deleteAccountId').value = 1; document.getElementById('deleteAccountInfo').textContent = 'Corrente - R$ 1.500,00'"
+                                        >
+                                            Bloquear
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>8</td>
+                                    <td>Poupança</td>
+                                    <td>R$ 500,00</td>
+                                    <td>23/11/2019</td>
+                                    <td>
+                                        <button
+                                        class="btn btn-sm btn-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteAccountModal"
+                                        onclick="document.getElementById('deleteAccountId').value = 1; document.getElementById('deleteAccountInfo').textContent = 'Corrente - R$ 1.500,00'"
+                                    >
+                                        Bloquear
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>9</td>
+                                <td>Corrente</td>
+                                <td>R$ 7.581.500,00</td>
+                                <td>23/11/2019</td>
+                                <td>
+                                    <button
+                                        class="btn btn-sm btn-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteAccountModal"
+                                        onclick="document.getElementById('deleteAccountId').value = 1; document.getElementById('deleteAccountInfo').textContent = 'Corrente - R$ 1.500,00'"
+                                    >
+                                        Bloquear
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>10</td>
+                                <td>Poupança</td>
+                                <td>R$ 1.500,00</td>
+                                <td>23/11/2019</td>
+                                <td>
+                                    <button
+                                        class="btn btn-sm btn-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteAccountModal"
+                                        onclick="document.getElementById('deleteAccountId').value = 1; document.getElementById('deleteAccountInfo').textContent = 'Corrente - R$ 1.500,00'"
+                                    >Bloquear</button>
+                                </td>
+                            </tr>
+                            <tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Excluir Conta -->
+        <div
+            class="modal fade"
+            id="deleteAccountModal"
+            tabindex="-1"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar Bloqueio</h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Tem certeza que deseja Bloquear a conta
+                            <strong id="deleteAccountInfo"></strong>
+                            ?
+                        </p>
+                        <p class="text-danger mb-0">Esta ação não pode ser desfeita.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-danger">Bloquear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Bootstrap Bundle JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>

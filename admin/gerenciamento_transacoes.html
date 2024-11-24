@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Transações</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            width: 250px;
+            background: linear-gradient(180deg, #1a237e 0%, #3949ab 100%);
+            color: white;
+            z-index: 1000;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 20px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: #00bcd4;
+        }
+
+        .sidebar .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: #00bcd4;
+        }
+
+        .brand-section {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+            .sidebar.active {
+                margin-left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .main-content.active {
+                margin-left: 250px;
+            }
+        }
+
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            display: none;
+            transition: left 0.3s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .toggle-btn {
+                display: block;
+            }
+            .toggle-btn.active {
+                left: 270px;
+            }
+        }
+
+        .table-actions {
+            white-space: nowrap;
+        }
+
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+    </div>
+    <div class="loading-overlay"></div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container"></div>
+
+    <!-- Toggle Button -->
+    <button class="btn btn-primary toggle-btn" onclick="toggleSidebar()">
+        ☰
+    </button>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="brand-section">
+            <h4 class="mb-0">Sistema Bancário</h4>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="geremciamento_cliente.html">
+                    <i class="fas fa-users me-2"></i>💼 Clientes
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="gerenciamento_contas.html">
+                    <i class="fas fa-landmark me-2"></i>💰 Contas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="gerenciamento_transacoes.html">
+                    <i class="fas fa-exchange-alt me-2"></i>🔄 Transações
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="gerenciamento_cartoes.html">
+                    <i class="fas fa-credit-card me-2"></i>💳 Cartões
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="gerenciamento_emprestimos.html">
+                    <i class="fas fa-hand-holding-usd me-2"></i>📊 Empréstimos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="../index.html">
+                    <i class="fas fa-sign-out-alt me-2"></i>
+                    Sair
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Gerenciamento de Transações</h2>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+                Adicionar Transação
+            </button>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Buscar por tipo ou valor">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterStatus">
+                            <option value="">Status - Todos</option>
+                            <option value="completed">Concluídas</option>
+                            <option value="pending">Pendentes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-secondary w-100" onclick="applyFilters()">
+                            <i class="fas fa-search me-2"></i>Filtrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transações Table -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tipo de Transação</th>
+                                <th>Valor</th>
+                                <th>Data</th>
+                                <th>Hora</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionTableBody">
+                            <!-- Exemplo de Dados de Transações -->
+                            <tr>
+                                <td>1</td>
+                                <td>Depósito</td>
+                                <td>R$ 1.000,00</td>
+                                <td>01/01/2022</td>
+                                <td>10:00</td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editTransactionModal">Editar</button>
+                                    <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteTransactionModal" 
+                                        onclick="document.getElementById('deleteTransactionId').value = 1; document.getElementById('deleteTransactionInfo').textContent = 'Depósito - R$ 1.000,00'">
+                                        Excluir
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- Adicionar mais transações aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Adicionar Transação -->
+    <div class="modal fade" id="addTransactionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Adicionar Transação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addTransactionForm" method="POST" action="/add-transaction">
+                        <div class="mb-3">
+                            <label for="transactionType" class="form-label">Tipo de Transação</label>
+                            <select class="form-select" id="transactionType" name="transactionType" required>
+                                <option value="deposit">Depósito</option>
+                                <option value="withdrawal">Saque</option>
+                                <option value="transfer">Transferência</option>
+                                <option value="pix">PIX</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Valor</label>
+                            <input type="number" class="form-control" id="amount" name="amount" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="transactionDate" class="form-label">Data</label>
+                            <input type="date" class="form-control" id="transactionDate" name="transactionDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="transactionTime" class="form-label">Hora</label>
+                            <input type="time" class="form-control" id="transactionTime" name="transactionTime" required>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Adicionar Transação</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Excluir Transação -->
+    <div class="modal fade" id="deleteTransactionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Exclusão</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja excluir a transação <strong id="deleteTransactionInfo"></strong>?</p>
+                    <p class="text-danger mb-0">Esta ação não pode ser desfeita.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteTransaction()">Excluir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
